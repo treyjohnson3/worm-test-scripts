@@ -165,7 +165,7 @@ class Adc():
         return min_real + ((value-min_adc)/(max_adc-min_adc))*(max_real-min_real)
 
     # only plan on using this for the future
-    def read_sensor(self, sensor_name, old_config=-1):
+    def read_sensor(self, sensor_name):
         '''
         takes in sensor object
         old_config is there to prevent reading of configuration sensor before setting channel - might save cycles? - will try
@@ -173,10 +173,7 @@ class Adc():
         sensor = self.sensors[sensor_name]
         if sensor == None:
             print("no such sensor in adc class")
-        if old_config == -1:
-            self.set_channel(sensor.channel)
-        else:
-            self.set_channel(sensor.channel, old_config)
+        self.set_channel(sensor.channel)
         if self.conversion_mode == CM_SINGLE:
             self.start_sync()
         # I believe this works???
@@ -188,11 +185,11 @@ class Adc():
     def add_sensor(self, sensor):
         self.sensors[sensor.name] = sensor
 
-    def read_active_sensors(self, old_config=-1):
+    def read_active_sensors(self):
         sensor_data = {}
         for name, sensor in self.sensors.items():
             if sensor.active == True:
-                sensor_data[name] = self.read_sensor(sensor, old_config)
+                sensor_data[name] = self.read_sensor(sensor)
         return sensor_data
 
     def check_active_sensors(self, data):
