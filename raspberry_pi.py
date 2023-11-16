@@ -1,10 +1,11 @@
 import threading
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
 import socket
 import adc
 import json
 import raspberry_pi_comms
+import sys
 
 
 # raspberry pi code loop - it should read sensor data every loop
@@ -21,9 +22,12 @@ import raspberry_pi_comms
 def terminate():
     print("TEMRINATION CALLED")
     comms.close()
+    #for each adc:
+    _adc.close()
     exit_flag.set()  # Set the exit flag to stop the threads
     communication_thread.join()  # Wait for the communication thread to finish
     GPIO.cleanup()  # Cleanup GPIO pins
+    sys.exit(0)
 
 
 def communication_thread():
@@ -55,7 +59,7 @@ def read_sensor():
 
 
 # AT POWER ON or possibly AT SCRIPT RUN via SSH COMMAND FROM MASTER COMPUTER......
-#########################################  SETUP ADCs   ##########################################################3##
+#########################################  SETUP ADCs   ############################################################
 # set ADC configuration settings
 # create an adc object for each adc
 _adc = adc.Adc("address")
@@ -237,6 +241,35 @@ if len(times) > 0:
 
 
 ###### NEED TO ADD DRDY IRQ FUNCTION HANDLER TEST #########
+
+time.sleep(2)
+print("STARTING DRDY FUNCTION HANDLER TEST")
+
+# should also test for setting channel to different channel than the one being used
+_adc.set_channel(adc.CHANNEL_AIN0)
+
+
+def irq_falling(channel):
+    _adc.read_channel(adc.CHANNEL_AIN0)
+    print("data ready ", channel)
+
+
+IRQ_GPIO_PIN = 0  # set pin for drdy
+IRQ_EDGE = GPIO.FALLING
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(IRQ_GPIO_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+GPIO.add_event_detect(IRQ_GPIO_PIN, IRQ_EDGE, callback=irq_falling)
+
+time1 = time.time()
+while True:
+    if time.time()-time1 >= 20:
+        break
+    time.sleep(1)
+
+GPIO.cleanup()
+_adc.close()
+
 
 '''
 
