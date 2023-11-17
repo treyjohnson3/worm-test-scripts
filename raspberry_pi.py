@@ -18,11 +18,13 @@ import sys
 # need to convert bytes data to actual readable numbers to check against range from sensors - for effeciency could just check against raw data in the future
 
 ##### FOR COMMS TEST #########
-'''
+''''''
+
+
 def terminate():
     print("TEMRINATION CALLED")
     comms.close()
-    #for each adc:
+    # for each adc:
     _adc.close()
     exit_flag.set()  # Set the exit flag to stop the threads
     communication_thread.join()  # Wait for the communication thread to finish
@@ -45,7 +47,6 @@ def communication_thread():
             print("Received stop command. Stopping.")
 
             break
-'''
 
 
 # Define the sensor reading function (you'll need to replace this with your sensor setup)
@@ -85,7 +86,7 @@ sensor2 = adc.Sensor("testing", adc.CHANNEL_AIN0, 0, max,
 # repeat test with one sensor, and with multiple sensors
 _adc.add_sensor(sensor2)
 
-'''
+''''''
 #################    Setup Communications #########################
 
 HOST = "127.0.0.1"
@@ -100,7 +101,6 @@ comms.setup()
 # Create and start the communication thread
 communication_thread = threading.Thread(target=communication_thread)
 communication_thread.start()
-'''
 
 
 ################# MAIN THREAD ##################
@@ -286,9 +286,6 @@ GPIO.cleanup()
 _adc.close()
 
 
-'''
-
-
 time.sleep(5)
 print(" ")
 print("COMMUNICATIONS TESTS")
@@ -329,24 +326,24 @@ try:
 
         # read and check all active sensors
         all_adcs_sensor_data[i] = _adc.read_active_sensors()
-        i+=1
+        i += 1
 
-        ''
+        '''
         DONT NEED TO CHECK SENSORS FOR THIS TEST
         if _adc.check_active_sensors(all_adcs_sensor_data) == False:
             terminate()
             break
             # need to add info so that we know what sensor was out of range
-        ''
+        '''
 
-        #make this a seperate thread eventually
-        # really only need to do this every couple of seconds or so - sends too much will cause backups 
+        # make this a seperate thread eventually
+        # really only need to do this every couple of seconds or so - sends too much will cause backups
         # Send data to main computer
-        if time.time() - time1 >=5:
-            #sending a very large amount of data
+        if time.time() - time1 >= 5:
+            # sending a very large amount of data
             print("SENDING DATA TO MAIN COMPUTER")
             comms.send_json_encoded(all_adcs_sensor_data)
-            #just for this test
+            # just for this test
             break
 
 
@@ -355,4 +352,4 @@ except KeyboardInterrupt:
 
 finally:
     terminate()
-'''
+''''''
