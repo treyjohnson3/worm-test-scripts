@@ -18,7 +18,7 @@ import sys
 # need to convert bytes data to actual readable numbers to check against range from sensors - for effeciency could just check against raw data in the future
 
 ##### FOR COMMS TEST #########
-''''''
+'''
 
 
 def terminate():
@@ -57,7 +57,7 @@ def read_sensor():
     return sensor_value
 
 # Define a function for reading the sensor data in a separate thread
-
+'''
 
 # AT POWER ON or possibly AT SCRIPT RUN via SSH COMMAND FROM MASTER COMPUTER......
 #########################################  SETUP ADCs   ############################################################
@@ -86,7 +86,7 @@ sensor2 = adc.Sensor("testing", adc.CHANNEL_AIN0, 0, max,
 # repeat test with one sensor, and with multiple sensors
 _adc.add_sensor(sensor2)
 
-''''''
+'''
 #################    Setup Communications #########################
 
 HOST = "127.0.0.1"
@@ -101,6 +101,7 @@ comms.setup()
 # Create and start the communication thread
 communication_thread = threading.Thread(target=communication_thread)
 communication_thread.start()
+'''
 
 
 ################# MAIN THREAD ##################
@@ -251,7 +252,7 @@ while True:
 if len(times) > 0:
     print("average length of time to read: ", sum(times)/len(times))
     print(times)
-
+'''
 
 ###### NEED TO ADD DRDY IRQ FUNCTION HANDLER TEST #########
 
@@ -273,14 +274,20 @@ print("set drdy pin to ", IRQ_GPIO_PIN)
 IRQ_EDGE = GPIO.FALLING
 
 GPIO.setmode(GPIO.BCM)
+GPIO.setup(4, GPIO.IN)
 GPIO.setup(IRQ_GPIO_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.add_event_detect(IRQ_GPIO_PIN, IRQ_EDGE, callback=irq_falling)
 
 time1 = time.time()
+time2 = time.time()
 while True:
+    time2 = time.time()
     if time.time()-time1 >= 20:
         break
-    time.sleep(1)
+    GPIO.wait_for_edge(4, GPIO.FALLING)
+    _adc.read_active_sensors()
+    print(time.time()-time2)
+
 
 GPIO.cleanup()
 _adc.close()
@@ -328,13 +335,13 @@ try:
         all_adcs_sensor_data[i] = _adc.read_active_sensors()
         i += 1
 
-        '''
+        ''
         DONT NEED TO CHECK SENSORS FOR THIS TEST
         if _adc.check_active_sensors(all_adcs_sensor_data) == False:
             terminate()
             break
             # need to add info so that we know what sensor was out of range
-        '''
+        ''
 
         # make this a seperate thread eventually
         # really only need to do this every couple of seconds or so - sends too much will cause backups
@@ -352,4 +359,4 @@ except KeyboardInterrupt:
 
 finally:
     terminate()
-''''''
+'''
