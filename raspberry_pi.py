@@ -65,7 +65,7 @@ def read_sensor():
 _adc = adc.Adc(0x40)
 # need to do this for each ADC in use
 _adc.set_conversion_mode(adc.CM_SINGLE)
-_adc.set_data_rate(adc.DR_20_SPS)
+_adc.set_data_rate(adc.DR_1000_SPS)
 _adc.set_gain(adc.GAIN_1X)
 _adc.set_vref(adc.VREF_INTERNAL)
 
@@ -260,7 +260,7 @@ def irq_falling(channel):
     print("data ready ", channel)
 
 
-IRQ_GPIO_PIN = 0  # set pin for drdy
+IRQ_GPIO_PIN = 4  # set pin for drdy
 IRQ_EDGE = GPIO.FALLING
 
 GPIO.setmode(GPIO.BCM)
