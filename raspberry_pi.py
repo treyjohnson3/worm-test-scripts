@@ -171,8 +171,10 @@ while True:
         ssdfsd = _adc.read_active_sensors()
         times.append(time.time()-time2)
         time2 = time.time()
+        print(ssdfsd)
 if len(times) > 0:
     print("average length of time to read: ", sum(times)/len(times))
+    print(times)
 
 time.sleep(2)
 
@@ -194,8 +196,10 @@ while True:
         ssdfsd = _adc.read_active_sensors()
         times.append(time.time()-time2)
         time2 = time.time()
+        print(ssdfsd)
 if len(times) > 0:
     print("average length of time to read: ", sum(times)/len(times))
+    print(times)
 
 
 time.sleep(2)
@@ -218,8 +222,10 @@ while True:
         ssdfsd = _adc.read_active_sensors()
         times.append(time.time()-time2)
         time2 = time.time()
+        print(ssdfsd)
 if len(times) > 0:
     print("average length of time to read: ", sum(times)/len(times))
+    print(times)
 
 time.sleep(2)
 
@@ -241,8 +247,10 @@ while True:
         ssdfsd = _adc.read_active_sensors()
         times.append(time.time()-time2)
         time2 = time.time()
+        print(ssdfsd)
 if len(times) > 0:
     print("average length of time to read: ", sum(times)/len(times))
+    print(times)
 
 
 ###### NEED TO ADD DRDY IRQ FUNCTION HANDLER TEST #########
@@ -261,6 +269,7 @@ def irq_falling(channel):
 
 
 IRQ_GPIO_PIN = 4  # set pin for drdy
+print("set drdy pin to ", IRQ_GPIO_PIN)
 IRQ_EDGE = GPIO.FALLING
 
 GPIO.setmode(GPIO.BCM)
