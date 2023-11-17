@@ -159,7 +159,7 @@ class Adc():
 
     def convert_adc_value(self, value, min_real, max_real, min_adc, max_adc):
         # if out of range of expected output from the adc, raise exception -- not really sure what to do here yet
-        if value < min_adc or value < max_adc:
+        if value < min_adc or value > max_adc:
             print("CONVERT_ADC_VALUE OUT OF RANGE OF EXPECTED OUTPUT")
             raise Exception  # add specific exception
         return min_real + ((value-min_adc)/(max_adc-min_adc))*(max_real-min_real)
@@ -179,7 +179,8 @@ class Adc():
         # I believe this works???
         data = self.i2c.read_i2c_block_data(
             self.address, _COMMAND_RDATA, 3)
-        return self.convert_adc_value(self.convert_to_voltage(data), sensor.real_min, sensor.real_max, sensor.output_min, sensor.output_max)
+        return self.convert_to_voltage(data)
+        # return self.convert_adc_value(self.convert_to_voltage(data), sensor.real_min, sensor.real_max, sensor.output_min, sensor.output_max)
         # returns as a list of bytes (integers)
 
     def add_sensor(self, sensor):
