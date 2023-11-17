@@ -82,6 +82,7 @@ sensor1 = adc.Sensor("testing", "channel",
 
 sensor2 = adc.Sensor("testing", adc.CHANNEL_AIN0, 0, max,
                      0, 1, -1000000, 100000000, True)
+# repeat test with one sensor, and with multiple sensors
 _adc.add_sensor(sensor2)
 
 '''
@@ -116,7 +117,8 @@ print("RUNNING STATUS READ CHECK")
 while True:
     if _adc.read_status() == True:
         print("successfully read drdy status from adc")
-        print("channel value: ", _adc.read_channel(adc.CHANNEL_AIN0))
+        print("channel value: ", _adc.convert_to_voltage(
+            _adc.read_channel(adc.CHANNEL_AIN0)))
         break
     if time.time() - time1 > 20:
         print("timed out on simple status read test")
@@ -129,7 +131,8 @@ _adc.set_channel(adc.CHANNEL_AIN1)
 while True:
     if _adc.read_status() == True:
         print("successfully read drdy status from adc")
-        print("channel value: ", _adc.read_channel(adc.CHANNEL_AIN0))
+        print("channel value: ", _adc.convert_to_voltage(
+            _adc.read_channel(adc.CHANNEL_AIN0)))
         break
     if time.time() - time1 > 20:
         print("timed out on simple status read test")
@@ -138,11 +141,13 @@ while True:
 time.sleep(2)
 
 print("RUNNING CM SINGLE CHECK")
-print("first value: ", _adc.read_channel(adc.CHANNEL_AIN0))
+print("first value: ", _adc.convert_to_voltage(
+    _adc.read_channel(adc.CHANNEL_AIN0)))
 _adc.set_conversion_mode(adc.CM_SINGLE)
 time.sleep(1)
 time1 = time.time()
-print("second value: ", _adc.read_channel(adc.CHANNEL_AIN0))
+print("second value: ", _adc.convert_to_voltage(
+    _adc.read_channel(adc.CHANNEL_AIN1)))
 print("time to execute: ", time.time()-time1)
 print("the values should be different")
 
@@ -250,7 +255,8 @@ _adc.set_channel(adc.CHANNEL_AIN0)
 
 
 def irq_falling(channel):
-    _adc.read_channel(adc.CHANNEL_AIN0)
+    print("DRDY PIN FELL....")
+    _adc.convert_to_voltage(_adc.read_channel(adc.CHANNEL_AIN0))
     print("data ready ", channel)
 
 
