@@ -107,7 +107,7 @@ communication_thread.start()
 # THIS THREAD CHECKS SENSORS AND SENDS DATA TO SOCKET
 # probably need to have a seperate thread running for each adc? But there is only one drdy pin?
 
-
+'''
 ###### tests ######
 # testing simple read
 _adc.set_conversion_mode(adc.CM_CONTINUOUS)
@@ -284,7 +284,7 @@ while True:
 
 GPIO.cleanup()
 _adc.close()
-
+'''
 
 time.sleep(5)
 print(" ")
@@ -294,7 +294,7 @@ print(" ")
 
 #################    Setup Communications #########################
 print("setting up socket")
-HOST = "127.0.0.1"
+HOST = "169.231.184.164"
 PORT = 65432
 comms = raspberry_pi_comms.Comms(HOST, PORT)
 
