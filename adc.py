@@ -178,7 +178,7 @@ class Adc():
             self.start_sync()
         # I believe this works???
         data = self.i2c.read_i2c_block_data(
-            sensor.adc_address, _COMMAND_RDATA, 3)
+            self.address, _COMMAND_RDATA, 3)
         return self.convert_adc_value(self.convert_to_voltage(data), sensor.real_min, sensor.real_max, sensor.output_min, sensor.output_max)
         # returns as a list of bytes (integers)
 
