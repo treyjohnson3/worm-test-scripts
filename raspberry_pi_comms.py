@@ -2,6 +2,7 @@ import socket
 import json
 import time
 import threading
+from socketserver import StreamRequestHandler, TCPServer
 
 # IN THIS VERSION, THE RASPBERRY PI PLAYS THE ROLE OF THE SERVER
 
@@ -30,49 +31,49 @@ class Comms():
         with json encoded (utf-8 default)
         json_message should be a dictionary
         '''
-        data_to_send = json.dumps(json_message)
-        self.send(data_to_send)
+        data_to_send = json.dumps(json_message).encode()
+        self.sendall(data_to_send)
 
     def send_message(self, message):
-        self.send(message)
+        self.sendall(message.encode())
 
     def check_comms(self):
         # send hello message - wait for echo back
         # .encode() could be wasting cycles?
-        self.main_connection.send("hello")
-        data = self.recieve()
+        self.main_connection.sendall("hello".encode())
+        data = self.recv(1024).decode()
         return data == "hello"
 
     def wait_and_recieve_command(self):
         # Receive commands from the main computer
-        command = self.recieve()
+        command = self.recv(4096).decode()
         if command == "hello":
-            self.send_string("hello")
+            self.send_message("hello".encode())
         print(f"Received command {command}")
         return command
 
-    def send(self, data):
-        # send the length of the serialized data first
-        self.main_connection.send('%d\n' % len(data))
-        # send the serialized data
-        self.main_connection.sendall(data)
-
-    def recieve(self):
-        # read the length of the data, letter by letter until we reach EOL
-        length_str = ''
-        char = self.main_connection.recv(1)
-        while char != '\n':
-            length_str += char
-            char = self.main_connection.recv(1)
-        total = int(length_str)
-        # use a memoryview to receive the data chunk by chunk efficiently
-        view = memoryview(bytearray(total))
-        next_offset = 0
-        while total - next_offset > 0:
-            recv_size = self.s.recv_into(
-                view[next_offset:], total - next_offset)
-            next_offset += recv_size
-        return view.tobytes()
-
     def close(self):
         self.main_connection.close()
+
+
+class DumpHandler(StreamRequestHandler):
+    def handle(self) -> None:
+        """receive json packets from client"""
+        print('connection from {}:{}'.format(*self.client_address))
+        try:
+            while True:
+                data = self.rfile.readline()
+                if not data:
+                    break
+                print('received', data.decode().rstrip())
+
+        finally:
+            print('disconnected from {}:{}'.format(*self.client_address))
+
+
+def main() -> None:
+    server_address = ("169.231.172.29", 65432)
+    print('starting up on {}:{}'.format(*server_address))
+    with TCPServer(server_address, DumpHandler) as server:
+        print('waiting for a connection')
+        server.serve_forever()
