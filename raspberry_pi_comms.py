@@ -29,26 +29,50 @@ class Comms():
         '''
         with json encoded (utf-8 default)
         json_message should be a dictionary
-        sends as byte-encoded string version of the json
         '''
-        data_to_send = json.dumps(json_message).encode()
-        self.main_connection.sendall(data_to_send)
+        data_to_send = json.dumps(json_message)
+        self.send(data_to_send)
 
-    def send_string(self, message):
-        self.main_connection.sendall(message.encode())
+    def send_message(self, message):
+        self.send(message)
 
     def check_comms(self):
         # send hello message - wait for echo back
         # .encode() could be wasting cycles?
-        self.main_connection.sendall("hello".encode())
-        data = self.main_connection.recv(4096).decode()
+        self.main_connection.send("hello")
+        data = self.recieve()
         return data == "hello"
 
     def wait_and_recieve_command(self):
         # Receive commands from the main computer
-        command = self.main_connection.recv(1024).decode()
+        command = self.recieve()
+        if command == "hello":
+            self.send_string("hello")
+        print(f"Received command {command}")
         return command
 
+    def send(self, data):
+        # send the length of the serialized data first
+        self.main_connection.send('%d\n' % len(data))
+        # send the serialized data
+        self.main_connection.sendall(data)
+
+    def recieve(self):
+        # read the length of the data, letter by letter until we reach EOL
+        length_str = ''
+        char = self.main_connection.recv(1)
+        while char != '\n':
+            length_str += char
+            char = self.main_connection.recv(1)
+        total = int(length_str)
+        # use a memoryview to receive the data chunk by chunk efficiently
+        view = memoryview(bytearray(total))
+        next_offset = 0
+        while total - next_offset > 0:
+            recv_size = self.s.recv_into(
+                view[next_offset:], total - next_offset)
+            next_offset += recv_size
+        return view.tobytes()
+
     def close(self):
-        self.s.close()
         self.main_connection.close()
