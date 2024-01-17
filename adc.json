@@ -1,0 +1,21 @@
+{
+    "0x20": {"name": "ADC_0", "channels": {
+        "HV_line_voltage": 0,
+        "HV_line_current": 1
+        }
+    },
+    "0x21": {"name": "ADC_1", "channels": {
+        "120_V_input": 0,
+        "120_I_input": 1,
+        "BCM_LV_voltage": 2,
+        "BCM_LV_current": 3
+        }
+    },
+    "0x22": {"name": "ADC_2", "channels": {
+        "Heater_1_current": 0,
+        "Heater_0_current": 1, 
+        "Batt_voltage": 2, 
+        "Batt_current": 3
+        }
+    }
+}

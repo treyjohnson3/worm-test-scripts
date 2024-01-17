@@ -4,8 +4,7 @@ import time
 import math
 
 #####################################
-# may need to adjust for circuit python so it can run on seesaw (use busio insead of smbus2)
-# code only applicable for ADS 1219
+# for ads1219
 ###################################
 
 
@@ -23,6 +22,8 @@ _COMMAND_RREG_CONFIG = 0b00100000
 _COMMAND_RREG_STATUS = 0b00100100
 _COMMAND_WREG_CONFIG = 0b01000000
 
+
+# not used
 _DRDY_MASK = 0b10000000\
     # need this only if implementing read_status function
 _DRDY_NO_NEW_RESULT = 0b00000000   # No new conversion result available
@@ -54,14 +55,12 @@ VREF_EXTERNAL = 0b1  # External reference
 VREF_INTERNAL_MV = 2048  # Internal reference voltage = 2048 mV
 POSITIVE_CODE_RANGE = 0x7FFFFF  # 23 bits of positive range
 
-# TO DO  - implement read config register ,   poll status on drdy if there is no pin connection on raspberry PI
-
 
 class Adc():
-    def __init__(self, address):
+    def __init__(self, name, address):
+        self.name = name
         # 1 or 2 for argument I'm not sure
         self.address = address
-        # turned off for mock:
         self.i2c = smbus2.SMBus(1)
         self.gain = GAIN_1X
         self.data_rate = DR_20_SPS
@@ -71,6 +70,7 @@ class Adc():
         self.current_config = self.read_config()
 
         self.sensors = {}
+        self.active_sensors = {}
 
         self.exit_flag_set = False
 
@@ -122,12 +122,12 @@ class Adc():
         self.i2c.write_byte(self.address, _COMMAND_RREG_CONFIG)
         return self.i2c.read_byte(self.address)
 
-    # not working
+    # need to check this function
     def read_status(self):
         self.i2c.write_byte(self.address, _COMMAND_RREG_STATUS)
         status = self.i2c.read_byte(self.address)
         # need to check this (only returning drdy bit)
-        return True if status >= 128 else False
+        return True if status >= 127 else False
 
     def read_channel(self, channel):
         self.set_channel(channel)
@@ -157,6 +157,7 @@ class Adc():
             # no capability for external voltage reference needed at the moment
             return -1
 
+    # ignore this
     def convert_adc_value(self, value, min_real, max_real, min_adc, max_adc):
         # if out of range of expected output from the adc, raise exception -- not really sure what to do here yet
         if value < min_adc or value > max_adc:
@@ -164,41 +165,54 @@ class Adc():
             raise Exception  # add specific exception
         return min_real + ((value-min_adc)/(max_adc-min_adc))*(max_real-min_real)
 
-    # only plan on using this for the future
-    def read_sensor(self, sensor_object):
+    def read_sensor(self, name):
         '''
         takes in sensor object
         old_config is there to prevent reading of configuration sensor before setting channel - might save cycles? - will try
         '''
-        sensor = self.sensors[sensor_object.name]
-        if sensor == None:
-            print("no such sensor in adc class")
+        try:
+            sensor = self.sensors[name]
+        except:
+            print(f"SENSOR {name} isn't in adc class")
+            return None
         self.set_channel(sensor.channel)
         if self.conversion_mode == CM_SINGLE:
             self.start_sync()
-        # I believe this works???
+
         data = self.i2c.read_i2c_block_data(
             self.address, _COMMAND_RDATA, 3)
         return self.convert_to_voltage(data)
         # return self.convert_adc_value(self.convert_to_voltage(data), sensor.real_min, sensor.real_max, sensor.output_min, sensor.output_max)
         # returns as a list of bytes (integers)
 
+    def check_sensor_in_range_by_name(self, name):
+        sensor = self.sensors[name]
+        sensor_value = self.read_sensor(name)
+        return sensor.check_in_range(sensor_value)
+
     def add_sensor(self, sensor):
         self.sensors[sensor.name] = sensor
 
+    def activate_sensor(self, sensor_name):
+        if self.sensors[sensor_name] == None:
+            print("in activate_sensor ---- given sensor name does not exist")
+            return
+        self.sensors[sensor_name]["active"] = True
+        self.active_sensors[sensor_name] = self.sensors[sensor_name]
+
     def read_active_sensors(self):
         sensor_data = {}
-        for name, sensor in self.sensors.items():
+        for name, sensor in self.active_sensors.items():
             if sensor.active == True:
-                sensor_data[name] = self.read_sensor(sensor)
+                sensor_data[name] = self.read_sensor(name)
         return sensor_data
 
     def check_active_sensors(self, data):
-        for name, sensor in self.sensors.items():
+        for name, sensor in self.active_sensors.items():
             if sensor.active == True:
                 if sensor.check_in_range(data[name]) == False:
-                    return False
-        return True
+                    return False, name
+        return True, None
 
     '''
     IF I WANTED TO HAVE A THREAD RUNNING FOR EACH ADC -- UNCLEAR HOW TO SHARE DATA
@@ -216,11 +230,12 @@ class Adc():
 
 
 class Sensor():
-    def __init__(self, name, channel, output_min, output_max, real_min, real_max, min_range, max_range, active):
+    def __init__(self, name, adc_name, channel, output_min, output_max, real_min, real_max, min_range, max_range, active):
         '''
         for channel must use ADC constant
         '''
         self.name = name
+        self.adc_name = adc_name
         self.channel = channel
         self.output_min = output_min
         self.output_max = output_max
@@ -238,16 +253,9 @@ class Sensor():
 
 
 if __name__ == "__main__":
-    # unit test if connected to ADC 1219
+    # tested, don't need unit test if connected to ADC 1219
 
     _adc = Adc(40)
     print(_adc.read_config())
     _adc.set_data_rate(DR_1000_SPS)
     print(_adc.read_config())
-
-    # def unit test
-    # unit test should test that bytes can properly be converted
-    # 1 write to configuration register
-    # 2 read from configuration register
-    # print result multiple ways
-    # test conversion to integer

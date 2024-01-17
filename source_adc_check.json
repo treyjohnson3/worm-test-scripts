@@ -1,0 +1,9 @@
+{
+  "TMP1075": {"type": "temp", "adc_adress": 0, "address": "0x00", "min": 0, "max": 0, "ref_min": 0, "ref_max": 0}, 
+  "Batt_voltage": {"min": 0, "max": 55, "ref_min": 0, "ref_max": 2},
+  "Batt_current": {"min": -46, "max": 46, "ref_min": 0.2, "ref_max": 4.8},
+  "BCM_lv_voltage": {"min": 0, "max": 55, "ref_min": 0, "ref_max": 2},
+  "BCM_lv_current": {"min": -1.4, "max": 13.85, "ref_min": 0.05, "ref_max": 3.10},
+  "Heater_0_current": {"min": 0, "max": 2.4, "ref_min": 0.33, "ref_max": 0.81},
+  "Heater_1_current": {"min": 0, "max": 2.4, "ref_min": 0.33, "ref_max": 0.81}
+}

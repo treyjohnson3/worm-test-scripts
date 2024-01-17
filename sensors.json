@@ -1,0 +1,36 @@
+{
+    "adc_1": {
+        "name": "adc_1",
+        "address": 4,
+        "channels": {
+            "0": {
+                "name": "sensor1", "output_min": "output_min", "output_max": 2423, "real_min": 24234, "real_max": 234234, "min_range": 24423, "max_range": 2342, "active": 1
+            },
+
+            "1": {
+                "name": "sensor1", "output_min": "output_min", "output_max": 2423, "real_min": 24234, "real_max": 234234, "min_range": 24423, "max_range": 2342, "active": 1
+            }, 
+
+            "2": {
+                "name": "sensor1", "output_min": "output_min", "output_max": 2423, "real_min": 24234, "real_max": 234234, "min_range": 24423, "max_range": 2342, "active": 1
+            }
+        }
+    },
+    "adc_2": {
+        "name": "adc_2", 
+        "address": 4,
+        "channels": {
+            "0": {
+                "name": "sensor1", "output_min": "output_min", "output_max": 2423, "real_min": 24234, "real_max": 234234, "min_range": 24423, "max_range": 2342, "active": 1
+            },
+
+            "1": {
+                "name": "sensor1", "output_min": "output_min", "output_max": 2423, "real_min": 24234, "real_max": 234234, "min_range": 24423, "max_range": 2342, "active": 1
+            }, 
+
+            "2": {
+                "name": "sensor1", "output_min": "output_min", "output_max": 2423, "real_min": 24234, "real_max": 234234, "min_range": 24423, "max_range": 2342, "active": 1
+            }
+        }
+    }
+}
